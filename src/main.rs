@@ -3,11 +3,15 @@
 #![feature(naked_functions)]
 #![feature(alloc_error_handler)]
 
+extern crate alloc;
+
+mod allocator;
 mod config;
 mod dtb;
 mod hart;
 mod lang_items;
 mod logging;
+mod mem;
 mod trap;
 
 use core::sync::atomic::{AtomicBool, Ordering};
@@ -55,6 +59,9 @@ fn rust_main(hart_id: usize, dtb: usize) {
         hart::init(hart_id);
         info!("Main hart {} started!", hart_id);
 
+        allocator::init_frame_allocator();
+        allocator::init_heap_allocator();
+
         start_other_harts(hart_id);
     } else {
         hart::init(hart_id);
@@ -78,9 +85,6 @@ pub fn start_other_harts(main_hart_id: usize) {
             continue;
         }
         let status = sbi_rt::hart_start(i, _start as usize, 0);
-        info!(
-            "Start to wake up hart {}... status {:?}",
-            i, status
-        );
+        info!("Start to wake up hart {}... status {:?}", i, status);
     }
 }
