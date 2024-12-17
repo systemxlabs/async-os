@@ -1,6 +1,4 @@
 mod context;
 mod handler;
 
-pub fn init() {
-    
-}
+pub fn init() {}

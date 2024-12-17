@@ -18,13 +18,11 @@ $(KERNEL_BIN): elf
 QEMU_ARGS := -d in_asm,int,mmu,pcall,cpu_reset,guest_errors \
 	        -D /tmp/qemu.log \
 			-machine virt \
-			-smp 1 \
+			-smp 4 \
 			-m 4G \
 			-nographic \
 			-bios $(BOOTLOADER) \
 			-device loader,file=$(KERNEL_BIN),addr=$(KERNEL_ENTRY_PA) \
-			# -drive file=guests/rCore-Tutorial-v3/fs.img,if=none,format=raw,id=x0 \
-			# -device virtio-blk-device,drive=x0,bus=virtio-mmio-bus.0
 
 run: $(KERNEL_BIN)
 	@qemu-system-riscv64 $(QEMU_ARGS)

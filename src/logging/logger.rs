@@ -1,4 +1,5 @@
 use log::{self, Level, LevelFilter, Log, Metadata, Record};
+use spin::Mutex;
 
 use crate::println;
 
@@ -19,12 +20,15 @@ impl Log for SimpleLogger {
             Level::Debug => 32, // Green
             Level::Trace => 90, // BrightBlack
         };
+        static CONSOLE_MUTEX: Mutex<()> = Mutex::new(());
+        let guard = CONSOLE_MUTEX.lock();
         println!(
             "\u{1B}[{}m[{}] {}\u{1B}[0m",
             color,
             record.level(),
             record.args(),
         );
+        drop(guard);
     }
     fn flush(&self) {}
 }
