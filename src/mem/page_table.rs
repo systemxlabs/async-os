@@ -1,9 +1,12 @@
+use core::ops::Range;
+
 use crate::{
-    allocator::PHYS_FRAME_ALLOCATOR, config::PAGE_SIZE_4K, dtb::MachineMeta, mem::addr::PhysAddr,
+    allocator::PHYS_FRAME_ALLOCATOR,
+    config::PAGE_SIZE_4K,
+    mem::{addr::PhysAddr, align_up},
 };
 use alloc::vec;
 use alloc::vec::Vec;
-use spin::Mutex;
 
 use super::{
     VirtAddr,
@@ -11,16 +14,6 @@ use super::{
 };
 
 const SV39_TABLE_PTE_COUNT: usize = 512;
-
-pub static KERNEL_PAGE_TABLE: Mutex<PageTable> = Mutex::new(PageTable::empty());
-
-pub fn init_kernel_page_table() {
-    let page_table = PageTable::try_new().expect("Failed to create page table");
-    *KERNEL_PAGE_TABLE.lock() = page_table;
-    // map_mmio_regions(meta);
-    // map_hypervisor_image();
-    // map_free_memory(meta);
-}
 
 pub struct PageTable {
     root_paddr: PhysAddr,
@@ -71,6 +64,14 @@ impl PageTable {
         for i in 0..num_pages {
             self.map(vaddr + i * PAGE_SIZE_4K, paddr + i * PAGE_SIZE_4K, flags);
         }
+    }
+
+    pub fn map_range_linear(&mut self, range_va: Range<VirtAddr>, flags: PTEFlags) {
+        assert!(range_va.start.is_aligned(PAGE_SIZE_4K));
+        let start = range_va.start.as_usize();
+        let end = align_up(range_va.end.as_usize(), PAGE_SIZE_4K);
+        let num_pages = (end - start) / PAGE_SIZE_4K;
+        self.map_region(start.into(), start.into(), num_pages, flags);
     }
 
     pub fn query_page(&mut self, vpn: VirtAddr) -> (PhysAddr, PTEFlags) {

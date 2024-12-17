@@ -59,14 +59,15 @@ fn rust_main(hart_id: usize, dtb: usize) {
         hart::init(hart_id);
         info!("Main hart {} started!", hart_id);
 
-        allocator::init_frame_allocator();
-        allocator::init_heap_allocator();
+        allocator::init();
 
-        mem::init_kernel_page_table();
+        mem::init();
+        info!("aaa");
 
         start_other_harts(hart_id);
     } else {
         hart::init(hart_id);
+        // mem::swich_kernel_space();
         info!("Other hart {} started!", hart_id);
     }
 }
