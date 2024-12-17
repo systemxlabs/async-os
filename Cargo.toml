@@ -12,3 +12,4 @@ arrayvec = { version = "0.7.6", default-features = false }
 buddy_system_allocator = "0.11"
 bitmap-allocator = "0.2"
 spin = "0.9"
+bitflags = "1.3"

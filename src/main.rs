@@ -62,6 +62,8 @@ fn rust_main(hart_id: usize, dtb: usize) {
         allocator::init_frame_allocator();
         allocator::init_heap_allocator();
 
+        mem::init_kernel_page_table();
+
         start_other_harts(hart_id);
     } else {
         hart::init(hart_id);
