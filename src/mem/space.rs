@@ -40,11 +40,11 @@ pub fn init_kernel_space() {
     );
     space.page_table.map_range_linear(
         (stext as usize).into()..(strampoline as usize).into(),
-        PTEFlags::R | PTEFlags::X,
+        PTEFlags::R | PTEFlags::X | PTEFlags::V,
     );
     space.page_table.map_range_linear(
         (etrampoline as usize).into()..(etext as usize).into(),
-        PTEFlags::R | PTEFlags::X,
+        PTEFlags::R | PTEFlags::X | PTEFlags::V,
     );
 
     log::info!(
@@ -54,7 +54,7 @@ pub fn init_kernel_space() {
     );
     space.page_table.map_range_linear(
         (strampoline as usize).into()..(etrampoline as usize).into(),
-        PTEFlags::R | PTEFlags::X,
+        PTEFlags::R | PTEFlags::X | PTEFlags::V,
     );
 
     log::info!(
@@ -64,7 +64,7 @@ pub fn init_kernel_space() {
     );
     space.page_table.map_range_linear(
         (srodata as usize).into()..(erodata as usize).into(),
-        PTEFlags::R,
+        PTEFlags::R | PTEFlags::V,
     );
 
     log::info!(
@@ -74,7 +74,7 @@ pub fn init_kernel_space() {
     );
     space.page_table.map_range_linear(
         (sdata as usize).into()..(edata as usize).into(),
-        PTEFlags::R | PTEFlags::W,
+        PTEFlags::R | PTEFlags::W | PTEFlags::V,
     );
 
     log::info!(
@@ -84,13 +84,13 @@ pub fn init_kernel_space() {
     );
     space.page_table.map_range_linear(
         (sstack as usize).into()..(estack as usize).into(),
-        PTEFlags::R | PTEFlags::W,
+        PTEFlags::R | PTEFlags::W | PTEFlags::V,
     );
 
     log::info!("[kernel] .bss [{:#x}, {:#x})", sbss as usize, ebss as usize);
     space.page_table.map_range_linear(
         (sbss as usize).into()..(ebss as usize).into(),
-        PTEFlags::R | PTEFlags::W,
+        PTEFlags::R | PTEFlags::W | PTEFlags::V,
     );
 
     log::info!(
@@ -100,7 +100,7 @@ pub fn init_kernel_space() {
     );
     space.page_table.map_range_linear(
         (ekernel as usize).into()..phys_mem_end.into(),
-        PTEFlags::R | PTEFlags::W,
+        PTEFlags::R | PTEFlags::W | PTEFlags::V,
     );
 
     for virtio_dev in meta.virtio.iter() {
@@ -112,7 +112,7 @@ pub fn init_kernel_space() {
         );
         space.page_table.map_range_linear(
             virtio_dev.base_address.into()..end.into(),
-            PTEFlags::R | PTEFlags::W,
+            PTEFlags::R | PTEFlags::W | PTEFlags::V,
         );
     }
 

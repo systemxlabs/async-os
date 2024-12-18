@@ -10,7 +10,7 @@ pub use space::*;
 
 pub fn init() {
     init_kernel_space();
-    // swich_kernel_space();
+    swich_kernel_space();
 }
 
 pub fn swich_kernel_space() {

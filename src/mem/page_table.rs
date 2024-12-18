@@ -72,12 +72,6 @@ impl PageTable {
         let start = range_va.start.as_usize();
         let end = align_up(range_va.end.as_usize(), PAGE_SIZE_4K);
         let num_pages = (end - start) / PAGE_SIZE_4K;
-        log::info!(
-            "map linear start: {:#x} end: {:#x}, num_pages: {}",
-            start,
-            end,
-            num_pages
-        );
         self.map_region(start.into(), start.into(), num_pages, flags);
     }
 
