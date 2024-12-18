@@ -8,11 +8,14 @@ extern crate alloc;
 mod allocator;
 mod config;
 mod dtb;
+mod error;
 mod hart;
 mod lang_items;
 mod logging;
 mod mem;
 mod trap;
+
+pub use error::*;
 
 use core::sync::atomic::{AtomicBool, Ordering};
 

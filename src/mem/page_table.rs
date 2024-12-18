@@ -1,6 +1,7 @@
 use core::ops::Range;
 
 use crate::{
+    KError, KResult,
     allocator::PHYS_FRAME_ALLOCATOR,
     config::PAGE_SIZE_4K,
     mem::{addr::PhysAddr, align_up},
@@ -71,6 +72,12 @@ impl PageTable {
         let start = range_va.start.as_usize();
         let end = align_up(range_va.end.as_usize(), PAGE_SIZE_4K);
         let num_pages = (end - start) / PAGE_SIZE_4K;
+        log::info!(
+            "map linear start: {:#x} end: {:#x}, num_pages: {}",
+            start,
+            end,
+            num_pages
+        );
         self.map_region(start.into(), start.into(), num_pages, flags);
     }
 
@@ -80,14 +87,14 @@ impl PageTable {
         (pte.ppn(), pte.flags())
     }
 
-    pub fn translate(&mut self, vaddr: VirtAddr) -> PhysAddr {
+    pub fn translate(&mut self, vaddr: VirtAddr) -> KResult<PhysAddr> {
         let pte = self.get_entry_mut(vaddr, false);
         if pte.is_valid() {
             let offset = vaddr.as_usize() & (PAGE_SIZE_4K - 1);
             let paddr = pte.ppn().as_usize() + offset;
-            paddr.into()
+            Ok(paddr.into())
         } else {
-            panic!("Not mapped");
+            Err(KError::MemNotMapped)
         }
     }
 
