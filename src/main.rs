@@ -40,8 +40,8 @@ pub unsafe extern "C" fn _start(hart_id: usize, dtb_addr: usize) -> ! {
                 slli    t0, t0, 16              // t0 = (hart_id + 1) * 64KB
                 la      sp, {boot_stack}
                 add     sp, sp, t0              // set boot stack
+                call rust_main
             ",
-            "call rust_main",
             boot_stack = sym BOOT_STACK,
         )
     }
@@ -60,16 +60,19 @@ fn rust_main(hart_id: usize, dtb: usize) {
 
         dtb::parse(dtb);
         hart::init(hart_id);
-        info!("Main hart {} started!", hart_id);
 
         allocator::init();
 
         mem::init();
+        trap::init();
+
+        info!("Main hart {} started!", hart_id);
 
         start_other_harts(hart_id);
     } else {
         hart::init(hart_id);
         mem::swich_kernel_space();
+        trap::init();
         info!("Other hart {} started!", hart_id);
     }
 }
