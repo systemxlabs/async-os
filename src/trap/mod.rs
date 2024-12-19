@@ -8,5 +8,5 @@ pub use user_trap::*;
 
 pub fn init() {
     set_kernel_trap();
-    // kernel_trap_test();
+    kernel_trap_test();
 }

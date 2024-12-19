@@ -14,6 +14,7 @@ mod lang_items;
 mod logging;
 mod mem;
 mod trap;
+mod executor;
 
 pub use error::*;
 
@@ -37,7 +38,7 @@ pub unsafe extern "C" fn _start(hart_id: usize, dtb_addr: usize) -> ! {
         core::arch::naked_asm!(
             "
                 addi    t0, a0, 1
-                slli    t0, t0, 16              // t0 = (hart_id + 1) * 64KB
+                slli    t0, t0, 20              // t0 = (hart_id + 1) * 1MB
                 la      sp, {boot_stack}
                 add     sp, sp, t0              // set boot stack
                 call rust_main
@@ -75,6 +76,15 @@ fn rust_main(hart_id: usize, dtb: usize) {
         trap::init();
         info!("Other hart {} started!", hart_id);
     }
+
+    executor::spawn(async move {
+        info!("Hello, world from {}!", hart_id);
+    });
+    executor::spawn(async move {
+        info!("Hello, world2 from {}!", hart_id);
+    });
+    executor::EXECUTOR.run();
+    loop {}
 }
 
 /// clear BSS segment

@@ -7,6 +7,7 @@ pub fn set_kernel_trap() {
     }
 }
 
+#[unsafe(link_section = ".text.trampoline")]
 #[unsafe(no_mangle)]
 #[naked]
 pub unsafe extern "C" fn __trap_from_kernel() {
@@ -91,6 +92,6 @@ fn panic_on_unknown_trap() {
 
 pub fn kernel_trap_test() {
     unsafe {
-        core::ptr::null_mut::<usize>().write_volatile(0);
+        core::ptr::null_mut::<u8>().write_volatile(0);
     }
 }

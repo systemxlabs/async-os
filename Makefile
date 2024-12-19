@@ -15,10 +15,13 @@ elf:
 $(KERNEL_BIN): elf
 	@$(OBJCOPY) $(KERNEL_ELF) --strip-all -O binary $@
 
+asm: elf
+	@$(OBJDUMP) --disassemble --line-numbers --demangle $(KERNEL_ELF)
+
 QEMU_ARGS := -d in_asm,int,mmu,pcall,cpu_reset,guest_errors \
 	        -D /tmp/qemu.log \
 			-machine virt \
-			-smp 4 \
+			-smp 2 \
 			-m 4G \
 			-nographic \
 			-bios $(BOOTLOADER) \
