@@ -31,7 +31,6 @@ where
     F: Future + Send + 'static,
     F::Output: Send + 'static,
 {
-    
     let schedule = move |runnable: Runnable| {
         EXECUTOR.push_back(runnable);
     };

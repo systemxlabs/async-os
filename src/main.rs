@@ -9,12 +9,12 @@ mod allocator;
 mod config;
 mod dtb;
 mod error;
+mod executor;
 mod hart;
 mod lang_items;
 mod logging;
 mod mem;
 mod trap;
-mod executor;
 
 pub use error::*;
 
