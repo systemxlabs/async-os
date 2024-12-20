@@ -20,12 +20,12 @@ pub use error::*;
 
 use core::sync::atomic::{AtomicBool, Ordering};
 
-use config::{KERNEL_STACK_SIZE, MAX_HARTS};
+use config::{BOOT_STACK_SIZE, MAX_HARTS};
 use dtb::MACHINE_META;
 use log::info;
 
 #[unsafe(link_section = ".bss.stack")]
-static BOOT_STACK: [u8; KERNEL_STACK_SIZE * MAX_HARTS] = [0u8; KERNEL_STACK_SIZE * MAX_HARTS];
+static BOOT_STACK: [u8; BOOT_STACK_SIZE * MAX_HARTS] = [0u8; BOOT_STACK_SIZE * MAX_HARTS];
 
 #[unsafe(link_section = ".text.entry")]
 #[unsafe(no_mangle)]
@@ -38,7 +38,7 @@ pub unsafe extern "C" fn _start(hart_id: usize, dtb_addr: usize) -> ! {
         core::arch::naked_asm!(
             "
                 addi    t0, a0, 1
-                slli    t0, t0, 20              // t0 = (hart_id + 1) * 1MB
+                slli    t0, t0, 16              // t0 = (hart_id + 1) * 64KB
                 la      sp, {boot_stack}
                 add     sp, sp, t0              // set boot stack
                 call rust_main

@@ -11,4 +11,19 @@ pub struct TrapContext {
     pub kernel_satp: usize,
     pub kernel_sp: usize,
     pub user_trap_handler: usize,
+    pub user_satp: usize,
+}
+
+impl TrapContext {
+    pub const fn empty() -> Self {
+        Self {
+            user_x: [0; 32],
+            sstatus: 0,
+            sepc: 0,
+            kernel_satp: 0,
+            kernel_sp: 0,
+            user_trap_handler: 0,
+            user_satp: 0,
+        }
+    }
 }

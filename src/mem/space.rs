@@ -1,9 +1,14 @@
 use core::ops::{Add, Range};
 
 use alloc::collections::btree_map::BTreeMap;
+use log::info;
 use spin::Mutex;
 
-use crate::{dtb::MACHINE_META, mem::PTEFlags};
+use crate::{
+    config::{PAGE_SIZE_4K, TRAMPOLINE},
+    dtb::MACHINE_META,
+    mem::PTEFlags,
+};
 
 use super::{PageTable, PhysAddr, VirtAddr};
 
@@ -116,6 +121,8 @@ pub fn init_kernel_space() {
         );
     }
 
+    space.map_trampoline();
+
     *KERNEL_SPACE.lock() = space;
     kernel_space_test();
 }
@@ -168,6 +175,25 @@ impl AddrSpace {
             riscv::register::satp::set(riscv::register::satp::Mode::Sv39, 0, page_table_root >> 12);
             riscv::asm::sfence_vma_all();
         }
+    }
+
+    pub fn map_trampoline(&mut self) {
+        let trampoline_start = strampoline as usize;
+        let trampoline_end = etrampoline as usize;
+        assert_eq!(trampoline_end - trampoline_start, PAGE_SIZE_4K);
+        info!(
+            "map trampoline [{:#x}, {:#x}) -> [{:#x}, {:#x}]",
+            trampoline_start,
+            trampoline_end,
+            TRAMPOLINE,
+            usize::MAX
+        );
+        self.page_table.map_region(
+            TRAMPOLINE.into(),
+            trampoline_start.into(),
+            1,
+            PTEFlags::R | PTEFlags::X | PTEFlags::V,
+        );
     }
 }
 
