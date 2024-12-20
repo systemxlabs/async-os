@@ -6,12 +6,14 @@ pub static EXECUTOR: Executor = Executor::new();
 
 pub struct Executor {
     queue: Mutex<VecDeque<Runnable>>,
+    tasks: Mutex<VecDeque<Arc<Task<()>>>>,
 }
 
 impl Executor {
     pub const fn new() -> Self {
         Self {
             queue: Mutex::new(VecDeque::new()),
+            tasks: Mutex::new(VecDeque::new()),
         }
     }
 

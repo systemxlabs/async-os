@@ -14,6 +14,7 @@ mod hart;
 mod lang_items;
 mod logging;
 mod mem;
+mod task;
 mod trap;
 
 pub use error::*;

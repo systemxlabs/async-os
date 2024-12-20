@@ -148,6 +148,7 @@ pub unsafe extern "C" fn __return_to_user(cx: *mut TrapContext, user_satp: usize
 #[unsafe(no_mangle)]
 pub fn user_trap_handler() {
     set_kernel_trap();
+    
 }
 
 #[unsafe(no_mangle)]

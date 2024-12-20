@@ -1,10 +1,10 @@
 use core::arch::asm;
 
+use alloc::sync::Arc;
 use riscv::register::sstatus::{self, FS};
 
 use crate::{
-    config::{KERNEL_STACK_SIZE, MAX_HARTS},
-    trap::TrapContext,
+    config::{KERNEL_STACK_SIZE, MAX_HARTS}, task::{IdleTask, Task}, trap::TrapContext
 };
 
 const HART_EACH: Hart = Hart::empty();
@@ -12,16 +12,18 @@ static mut HARTS: [Hart; MAX_HARTS] = [HART_EACH; MAX_HARTS];
 
 pub struct Hart {
     hart_id: usize,
-    trap_contex: TrapContext,
     kernel_stack: [u8; KERNEL_STACK_SIZE],
+    task: Option<Arc<Task>>,
+    idle: IdleTask,
 }
 
 impl Hart {
     pub const fn empty() -> Self {
         Self {
             hart_id: 0,
-            trap_contex: TrapContext::empty(),
             kernel_stack: [0; KERNEL_STACK_SIZE],
+            task: None,
+            idle: IdleTask::new(),
         }
     }
 }
@@ -50,4 +52,8 @@ pub fn local_hart() -> &'static mut Hart {
         asm!("mv {}, tp", out(reg) tp);
         &mut *(tp as *mut Hart)
     }
+}
+
+pub fn current_task() -> Option<Arc<Task>> {
+    local_hart().task.clone()
 }
