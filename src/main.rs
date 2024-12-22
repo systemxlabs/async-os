@@ -9,13 +9,13 @@ mod allocator;
 mod config;
 mod dtb;
 mod error;
-mod executor;
 mod hart;
 mod lang_items;
 mod logging;
 mod mem;
 mod task;
 mod trap;
+mod runtime;
 
 pub use error::*;
 
@@ -24,6 +24,7 @@ use core::sync::atomic::{AtomicBool, Ordering};
 use config::{BOOT_STACK_SIZE, MAX_HARTS};
 use dtb::MACHINE_META;
 use log::info;
+use runtime::executor;
 
 #[unsafe(link_section = ".bss.stack")]
 static BOOT_STACK: [u8; BOOT_STACK_SIZE * MAX_HARTS] = [0u8; BOOT_STACK_SIZE * MAX_HARTS];
@@ -78,13 +79,6 @@ fn rust_main(hart_id: usize, dtb: usize) {
         info!("Other hart {} started!", hart_id);
     }
 
-    executor::spawn(async move {
-        info!("Hello, world from {}!", hart_id);
-    });
-    executor::spawn(async move {
-        info!("Hello, world2 from {}!", hart_id);
-    });
-    executor::EXECUTOR.run();
     loop {}
 }
 

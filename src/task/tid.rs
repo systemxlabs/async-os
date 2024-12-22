@@ -4,7 +4,7 @@ use crate::allocator::RecycleAllocator;
 
 pub static TID_ALLOCATOR: Mutex<RecycleAllocator> = Mutex::new(RecycleAllocator::new(1));
 
-#[derive(Debug)]
+#[derive(Debug, Ord, PartialOrd, Eq, PartialEq)]
 pub struct TidHandle(pub usize);
 
 impl Drop for TidHandle {
