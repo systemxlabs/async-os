@@ -1,6 +1,6 @@
 use riscv::register::stvec;
 
-use crate::config::TRAMPOLINE;
+use crate::{config::TRAMPOLINE, task::Task};
 
 use super::{TrapContext, set_kernel_trap};
 
@@ -148,11 +148,12 @@ pub unsafe extern "C" fn __return_to_user(cx: *mut TrapContext, user_satp: usize
 #[unsafe(no_mangle)]
 pub fn user_trap_handler() {
     set_kernel_trap();
-    
 }
 
 #[unsafe(no_mangle)]
-pub fn user_trap_return() -> ! {
+pub fn user_trap_return(task: &Task) -> ! {
     set_user_trap();
-    todo!()
+    let trap_ctx = task.trap_context_mut();
+    unsafe { __return_to_user(trap_ctx, trap_ctx.user_satp) };
+    unreachable!();
 }

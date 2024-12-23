@@ -2,6 +2,7 @@
 #![no_main]
 #![feature(naked_functions)]
 #![feature(alloc_error_handler)]
+#![feature(sync_unsafe_cell)]
 
 extern crate alloc;
 
@@ -13,9 +14,9 @@ mod hart;
 mod lang_items;
 mod logging;
 mod mem;
+mod runtime;
 mod task;
 mod trap;
-mod runtime;
 
 pub use error::*;
 
@@ -24,7 +25,6 @@ use core::sync::atomic::{AtomicBool, Ordering};
 use config::{BOOT_STACK_SIZE, MAX_HARTS};
 use dtb::MACHINE_META;
 use log::info;
-use runtime::executor;
 
 #[unsafe(link_section = ".bss.stack")]
 static BOOT_STACK: [u8; BOOT_STACK_SIZE * MAX_HARTS] = [0u8; BOOT_STACK_SIZE * MAX_HARTS];
@@ -69,17 +69,21 @@ fn rust_main(hart_id: usize, dtb: usize) {
         mem::init();
         trap::init();
 
+        runtime::init();
+
         info!("Main hart {} started!", hart_id);
 
         start_other_harts(hart_id);
+
+        hart::run_first();
     } else {
         hart::init(hart_id);
         mem::swich_kernel_space();
         trap::init();
         info!("Other hart {} started!", hart_id);
-    }
 
-    loop {}
+        hart::run_first();
+    }
 }
 
 /// clear BSS segment

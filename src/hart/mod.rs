@@ -1,10 +1,13 @@
 use core::arch::asm;
 
-use alloc::sync::Arc;
+use alloc::{boxed::Box, sync::Arc};
 use riscv::register::sstatus::{self, FS};
 
 use crate::{
-    config::{KERNEL_STACK_SIZE, MAX_HARTS}, task::{IdleTask, Task}, trap::TrapContext
+    config::{KERNEL_STACK_SIZE, MAX_HARTS},
+    runtime::EXECUTOR,
+    task::{IdleTask, Task},
+    trap::{TrapContext, user_trap_return},
 };
 
 const HART_EACH: Hart = Hart::empty();
@@ -13,7 +16,7 @@ static mut HARTS: [Hart; MAX_HARTS] = [HART_EACH; MAX_HARTS];
 pub struct Hart {
     hart_id: usize,
     kernel_stack: [u8; KERNEL_STACK_SIZE],
-    task: Option<Arc<Task>>,
+    task: Option<Box<Task>>,
     idle: IdleTask,
 }
 
@@ -54,6 +57,13 @@ pub fn local_hart() -> &'static mut Hart {
     }
 }
 
-pub fn current_task() -> Option<Arc<Task>> {
-    local_hart().task.clone()
+pub fn run_first() {
+    let task = unsafe { EXECUTOR.get_unchecked().fetch().expect("no task to run") };
+    let hart = local_hart();
+    hart.task = Some(task);
+    user_trap_return(hart.task.as_ref().unwrap())
+}
+
+pub fn run_task(task: Box<Task>) {
+    todo!()
 }

@@ -1,8 +1,9 @@
-use core::{pin::Pin, task::{Context, Poll}};
+use core::{
+    pin::Pin,
+    task::{Context, Poll},
+};
 
-pub struct IdleTask {
-
-}
+pub struct IdleTask {}
 
 impl IdleTask {
     pub const fn new() -> Self {

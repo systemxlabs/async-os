@@ -1,12 +1,13 @@
+use crate::task::{Task, TidHandle};
+use alloc::boxed::Box;
 use alloc::collections::{BTreeMap, VecDeque};
 use alloc::sync::Arc;
 use alloc::task::Wake;
 use spin::Mutex;
-use crate::task::{Task, TidHandle};
 
 pub struct TaskWaker {
-    ready: Arc<Mutex<VecDeque<Task>>>,
-    pending: Arc<Mutex<BTreeMap<TidHandle, Task>>>,
+    ready: Arc<Mutex<VecDeque<Box<Task>>>>,
+    pending: Arc<Mutex<BTreeMap<TidHandle, Box<Task>>>>,
     target: TidHandle,
 }
 
